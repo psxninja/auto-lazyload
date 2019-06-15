@@ -2,20 +2,17 @@
 	'use strict';
 	var elems = document.querySelectorAll('.has--lazyload');
 	var elemsInd = elems.length;
-
 	var regImg = new RegExp(/<img.*?>/gi);
 	var regIframe = new RegExp(/<iframe.*?>/gi);
 	var regSrc = new RegExp(/src="(.*?)"/gi);
 	var repImg = 'data-src="$1" src="data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs=" class="lazy"';
 	var repIframe = 'data-src="$1" src="data:text/plain;charset=UTF-8,Carregando..." class="lazy"';
-	
 	var onloadImg = function(elem) {
 		elem.classList.remove('lazy');
 		elem.classList.add('loaded');
 		console.log('img has loaded');
 		elem.removeEventListener('onload', onloadImg);
 	};
-
 	console.time('replace-noscript');
 	for(var z = 0; z<elemsInd; z++){
 		var _content = elems[z].querySelector('noscript').textContent;
@@ -32,41 +29,40 @@
 		elems[z].innerHTML = _content;
 	};
 	console.timeEnd('replace-noscript');
-
 	if('IntersectionObserver' in window){
 		var elems = document.querySelectorAll(".lazy");
-		var options = {};
 		var observer = new IntersectionObserver(function(entries,observer){
-			entries.forEach(function(entry){
-				if(!entry.isIntersecting)return;
-				observer.unobserve(entry.target);
-				entry.target.onload = onloadImg(entry.target);
-				entry.target.src = entry.target.dataset.src;
+			for(var z = 0, v = entries.length; z<v; z++){
+				if(!entries[z].isIntersecting)return;
+				observer.unobserve(entries[z].target);
+				entries[z].target.onload = onloadImg(entries[z].target);
+				entries[z].target.src = entries[z].target.dataset.src;
 				console.log('observer img loaded');
-			});
-		},options);
-		elems.forEach(function(elem){
-			observer.observe(elem);
+			}
 		});
+		for(var x = 0, c = elems.length; x<c; x++){
+			observer.observe(elems[x]);
+		}
 	}else{
 		var imgs = document.querySelectorAll(".lazy");
 		var loadlazy = function(){
 			if(!imgs.length)return;
 			imgs = document.querySelectorAll(".lazy");
-			imgs.forEach(function(elem){
-				if (elem.classList.contains("loaded")) return;
-				var rect = elem.getBoundingClientRect();
+			for(var z = 0, v = imgs.length; z<v; z++){
+				if (imgs[z].classList.contains("loaded")) return;
+				var rect = imgs[z].getBoundingClientRect();
 				var visible = (rect.top >= 0 && rect.left >= 0 && rect.top <= (window.innerHeight || screen.height) && rect.left <= (window.innerWidth || screen.width));
 				if(visible){
-					elem.src = elem.dataset.src;
-					elem.onload = onloadImg(elem);
+					imgs[z].src = imgs[z].dataset.src;
+					imgs[z].onload = onloadImg(imgs[z]);
 				}
-			});
+			}
 		};
 		window.onload = loadlazy;
-		['transitionend', 'animationend', 'webkitAnimationEnd', 'scroll', 'resize'].forEach(function(name){
-			document.addEventListener(name, loadlazy, true);
-		});
+		var events = ['transitionend', 'animationend', 'webkitAnimationEnd', 'scroll', 'resize'];
+		for(var x = 0, c = events.length; x<c; x++){
+			document.addEventListener(events[x], loadlazy, true);
+		}
 		document.addEventListener('click', function(){setTimeout(loadlazy,550)}, true);
 	}
 })();
