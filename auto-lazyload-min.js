@@ -1,0 +1,11 @@
+/*!
+ * Auto Lazyload v1.0
+ * https://psxninja.github.io
+ *
+ * Copyright Pablo Santos
+ * Released under the MIT license
+ * https://github.com/psxninja/lazyload--vtex/blob/master/LICENSE
+ *
+ * Date: 2019-07-20T22:49Z
+ */
+(function(){'use strict';var a,b=new RegExp(/<img.*?>/gi),d=new RegExp(/<iframe.*?>/gi),e=new RegExp(/src="(.*?)"/gi),f=["DOMNodeInserted","DOMAttrModified","DOMContentLoaded"],g=["scroll","resize","transitionend","animationend","webkitAnimationEnd"].concat(f),h=window.innerHeight||document.documentElement.clientHeight,i=window.innerWidth||document.documentElement.clientWidth,j=null,k=function(a){a.classList.remove("lazy-loading"),a.classList.add("lazy-loaded"),a.removeEventListener("onload",k)},l=function(b,c){null!==a&&clearTimeout(a),a=setTimeout(function(){b()},c||550)},m=function(){var a=document.querySelectorAll(".has--lazyload");if(a.length&&null===j){j=setTimeout(function(){j=null},500);for(var c,f=0,g=a.length;f<g;f++)c=a[f].querySelector("noscript"),c=c.textContent,b.test(c)&&(c=c.replace(b,function(a){return a.replace(e,"data-src=\"$1\" src=\"data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs=\" class=\"lazy-loading\"")})),d.test(c)&&(c=c.replace(d,function(a){return a.replace(e,"data-src=\"$1\" src=\"data:text/plain;charset=UTF-8,Carregando...\" class=\"lazy-loading\"")})),a[f].innerHTML=c,a[f].classList.remove("has--lazyload")}};if("IntersectionObserver"in window)for(var n=function(){for(var a=document.querySelectorAll(".lazy-loading"),b=new IntersectionObserver(function(a,b){for(var c=0,d=a.length;c<d;c++)a[c].isIntersecting&&(a[c].target.onload=k(a[c].target),a[c].target.src=a[c].target.dataset.src,b.unobserve(a[c].target))}),d=0,e=a.length;d<e;d++)b.observe(a[d])},o=0,p=f.length;o<p;o++)document.addEventListener(f[o],function(){m(),l(function(){n()})},!0);else{for(var n=function(){var a=document.querySelectorAll(".lazy-loading");if(a.length)for(var b=0,c=a.length;b<c;b++)if(!a[b].classList.contains("lazy-loaded")){var d=a[b].getBoundingClientRect();0<=d.top&&0<=d.left&&d.top<=h&&d.right<=i&&(a[b].src=a[b].dataset.src,a[b].onload=k(a[b]))}},o=0,p=g.length;o<p;o++)document.addEventListener(g[o],function(){m(),l(function(){n()},200)},!0);document.addEventListener("mouseup",function(){m(),l(function(){n()})},!0)}})();
