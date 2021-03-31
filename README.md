@@ -57,6 +57,6 @@ You can use the following classes on image tag `<img class="lazy-">` to custom s
 
 
 ## License
-Auto Lazyload is open-sourced software licensed under [MIT license](../blob/master/LICENSE).
+Auto Lazyload is open-sourced software licensed under [MIT license](../master/LICENSE).
 
 Made with ♥
