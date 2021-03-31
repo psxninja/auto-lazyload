@@ -2,9 +2,9 @@
  * Auto Lazyload v2.0
  * https://psxninja.github.io
  *
- * Copyright Pablo Santos
+ * Copyright psxninja
  * Released under the MIT license
- * https://github.com/psxninja/lazyload--vtex/blob/master/LICENSE
+ * https://github.com/psxninja/auto-lazyload/blob/master/LICENSE
  *
  * Date: 2019-07-20T22:49Z
  */
