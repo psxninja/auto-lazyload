@@ -7,29 +7,27 @@ A lazyload for be use with websites.
 ```
 
 ## Usage
-After import/call files on page, its initialize automatically.  
+_After import/call files on page, its initialize automatically._
 
+→ When front-end can't change html, most used with Vtex
 ```html
-<!-- Vitrine Vtex non-reactJS  -->
 <div class="your-class has--lazyload">
-	<noscript>$product.GetImageTag(2)</noscript>
+	<noscript>html from back-end here</noscript>
 </div>
 ```
 
+→ Images
 ```html
-<!-- Placeholder Vtex non-reactJS -->
-<div class="your-class has--lazyload">
-	<noscript><vtex:contentPlaceHolder id="Main-Banner" /></noscript>
-</div>
-```
-
-```html
-<!-- Images -->
 <img data-src="IMAGE_URL" src="data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs=" class="lazy-loading">
 ```
 
+→ Backgroung images
 ```html
-<!-- Iframe -->
+<div class="your-class lazy-loading lazy-bg" data-bg="IMAGE_URL"></div>
+```
+
+→ Iframe
+```html
 <div class="your-class has--lazyload">
 	<noscript><iframe src="IFRAME_URL"></iframe></noscript>
 </div>
@@ -39,20 +37,26 @@ or
 <iframe class="lazy-loading" data-src="IFRAME_URL" src="data:text/plain;charset=UTF-8,Carregando..."></iframe>
 ```
 
-You can use the following classes on image tag &#60;img&#62; to custom style:
+You can use the following classes on image tag `<img class="lazy-">` to custom style:
 
 ```css
-/* Css */
 [class*="lazy-"] {
-	transition: opacity .3s linear;
+    opacity: .1;
+	transition: opacity .2s ease-out;
 }
 .lazy-loading {
-	opacity: .3;
+	opacity: .1;
 }
 .lazy-loaded {
 	opacity: 1;
 }
+.lazy-bg {
+    opacity: 1;
+}
 ```
 
+
 ## License
-Auto Lazyload is open-sourced software licensed under [MIT license](https://opensource.org/licenses/MIT).
+Auto Lazyload is open-sourced software licensed under [MIT license](../blob/master/LICENSE).
+
+Made with ♥

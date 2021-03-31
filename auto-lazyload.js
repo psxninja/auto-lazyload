@@ -1,5 +1,5 @@
 /*!
- * Auto Lazyload v1.0
+ * Auto Lazyload v2.0
  * https://psxninja.github.io
  *
  * Copyright Pablo Santos
@@ -8,82 +8,151 @@
  *
  * Date: 2019-07-20T22:49Z
  */
-(function(){
+(function(win, doc){
 	'use strict';
-	var regImg = new RegExp(/<img.*?>/gi);
-	var regIframe = new RegExp(/<iframe.*?>/gi);
-	var regSrc = new RegExp(/src="(.*?)"/gi);
-	var repImg = 'data-src="$1" src="data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs=" class="lazy-loading"';
-	var repIframe = 'data-src="$1" src="data:text/plain;charset=UTF-8,Carregando..." class="lazy-loading"';
-	var eventsObserver = ['DOMNodeInserted', 'DOMAttrModified', 'DOMContentLoaded'];
-	var eventsPolyfill = ['scroll', 'resize', 'transitionend', 'animationend', 'webkitAnimationEnd'].concat(eventsObserver);
-	var windowHeight = (window.innerHeight || document.documentElement.clientHeight);
-	var windowWidth = (window.innerWidth || document.documentElement.clientWidth);
-	var execLoad, mountLoad = null;
-	var onloadImg = function(elem) {
-		elem.classList.remove('lazy-loading');
-		elem.classList.add('lazy-loaded');
-		elem.removeEventListener('onload', onloadImg);
-	};
-	var throttle = function(callback, limit){
-		if(execLoad!==null)clearTimeout(execLoad);
-		execLoad = setTimeout(function(){ callback() },(limit||550));
+	var regImg = /<img.*?>/gi
+	,regIframe = /<iframe.*?>/gi
+	,regSrc = /src="(.*?)"/gi
+	,repImg = 'data-src="$1" src="data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs="'
+	,repIframe = 'data-src="$1" src="data:text/plain;charset=UTF-8,Carregando..."'
+	,eventsPolyfill = [
+		'DOMNodeInserted',
+		'transitionend',
+		'animationend',
+		'webkitAnimationEnd',
+		'resize',
+		/* 'DOMAttrModified' */
+	]
+	,windowHeight = (window.innerHeight || doc.documentElement.clientHeight)
+	,windowWidth = (window.innerWidth || doc.documentElement.clientWidth)
+	,execLoad = null
+	,mountLoad = null
+	,onloadImg = function(img) {
+		img.className = img.className.replace('lazy-loading', 'lazy-loaded')
+		img.removeEventListener('onload', onloadImg)
 	}
-	var mountLazy = function(){
-		var elems = document.querySelectorAll('.has--lazyload');
-		if(!elems.length || mountLoad!==null)return;
-		mountLoad = setTimeout(function(){ mountLoad = null },500);
-		for(var z = 0, y = elems.length; z<y; z++){
-			var _content = elems[z].querySelector('noscript');
-			_content = _content.textContent;
-			if(regImg.test(_content)){
-				_content = _content.replace(regImg, function(str){
-					return str.replace(regSrc, repImg);
+	,throttle = function(callback, limit) {
+		if (execLoad !== null) clearTimeout(execLoad)
+		execLoad = win.setTimeout(function() {
+			callback()
+			execLoad = null
+		}, (limit || 550))
+	}
+	function mountLazy() {
+		var elems = doc.querySelectorAll('.has--lazyload')
+		if (elems.length === 0 || mountLoad !== null) return
+		mountLoad = win.setTimeout(function() {
+			mountLoad = null
+		}, 550)
+		for (var z = 0, y = elems.length; z < y; z++) {
+			var div = doc.createElement('div')
+			var html = elems[z].querySelector('noscript')
+			var getImgs = null
+			if (html === null || html.length === 0) continue
+			html = html.textContent
+			if (regImg.test(html)) {
+				html = html.replace(regImg, function(str) {
+					return str.replace(regSrc, repImg)
 				});
 			}
-			if(regIframe.test(_content)){
-				_content = _content.replace(regIframe, function(str){
-					return str.replace(regSrc, repIframe);
+			if (regIframe.test(html)) {
+				html = html.replace(regIframe, function(str) {
+					return str.replace(regSrc, repIframe)
 				});
 			}
-			elems[z].innerHTML = _content;
-			elems[z].classList.remove('has--lazyload');
+			div.innerHTML = html
+			getImgs = div.getElementsByTagName('img')
+			for (var q = 0, t = getImgs.length; q < t; q++) {
+				getImgs[q].className += ' lazy-loading'
+			}
+			elems[z].innerHTML = div.innerHTML
+			elems[z].className = elems[z].className.replace('has--lazyload', '')
+			html = undefined
+			div = undefined
+			getImgs = undefined
 		}
-	};
-	if('IntersectionObserver' in window){
-		var execLazy = function(){
-			var lazy = document.querySelectorAll('.lazy-loading');
-			var observer = new IntersectionObserver(function(entries, observer){
-				for(var z = 0, v = entries.length; z<v; z++){
-					if(!entries[z].isIntersecting)continue;
-					entries[z].target.onload = onloadImg(entries[z].target);
-					entries[z].target.src = entries[z].target.dataset.src;
-					observer.unobserve(entries[z].target);
+		elems = undefined
+	}
+	if ('IntersectionObserver' in window) {
+		function execLazy(){
+			var lazy = doc.querySelectorAll('.lazy-loading');
+			var observer = new IntersectionObserver(function(entries, observer) {
+				for (var z = 0, v = entries.length; z < v; z++) {
+					if (entries[z].isIntersecting === false) continue
+					if (entries[z].target.dataset.bg) {
+						entries[z].target.style.backgroundImage
+							= 'url(' + entries[z].target.dataset.bg + ')'
+						onloadImg(entries[z].target)
+					}
+					if (entries[z].target.dataset.src) {
+						entries[z].target.onload = onloadImg(entries[z].target)
+						entries[z].target.src = entries[z].target.dataset.src
+					}
+					observer.unobserve(entries[z].target)
 				}
-			});
-			for(var x = 0, c = lazy.length; x<c; x++){
+			})
+			for (var x = 0, c = lazy.length; x < c; x++) {
 				observer.observe(lazy[x]);
 			}
+			lazy = undefined
 		}
-		for(var x = 0, c = eventsObserver.length; x<c; x++){
-			document.addEventListener(eventsObserver[x], function(){ mountLazy(); throttle( function(){ execLazy() }); }, true);
-		}
-	}else{
-		var execLazy = function(){
-			var lazy = document.querySelectorAll(".lazy-loading");
-			if(!lazy.length)return;
-			for(var z = 0, v = lazy.length; z<v; z++){
-				if(lazy[z].classList.contains("lazy-loaded"))continue;
-				var rect = lazy[z].getBoundingClientRect();
-				if(rect.top >= 0 && rect.left >= 0 && rect.top <= windowHeight && rect.right <= windowWidth){
-					lazy[z].src = lazy[z].dataset.src;
-					lazy[z].onload = onloadImg(lazy[z]);
+		mountLazy()
+		doc.addEventListener('DOMContentLoaded', function() {
+			execLazy()
+			doc.addEventListener('DOMNodeInserted', function(el) {
+				if (el.target.className === undefined) return
+				if (el.target.className.indexOf('has--lazyload') === -1) return
+				mountLazy()
+				throttle(function() {
+					execLazy()
+				})
+			}, true);
+		}, true);
+	} else {
+		function execLazy() {
+			var lazy = doc.querySelectorAll('.lazy-loading');
+			if (lazy.length === 0) return
+			for (var z = 0, v = lazy.length; z < v; z++) {
+				if (lazy[z].className.indexOf('lazy-loading') === -1) continue
+				var rect = lazy[z].getBoundingClientRect()
+				if (
+					rect.top >= 0 &&
+					rect.left >= 0 &&
+					rect.top <= windowHeight &&
+					rect.right <= windowWidth
+				) {
+					if (lazy[z].dataset.bg) {
+						lazy[z].style.backgroundImage
+							= 'url(' + lazy[z].dataset.bg + ')'
+						onloadImg(lazy[z])
+					}
+					if (lazy[z].dataset.src) {
+						lazy[z].onload = onloadImg(lazy[z])
+						lazy[z].src = lazy[z].dataset.src
+					}
 				}
+				rect = undefined
 			}
-		};
-		for(var x = 0, c = eventsPolyfill.length; x<c; x++){
-			document.addEventListener(eventsPolyfill[x], function(){ mountLazy(); throttle(function(){ execLazy() },200) }, true);
+			lazy = null
 		}
-		document.addEventListener('mouseup', function(){ mountLazy(); throttle(function(){ execLazy() }) }, true);
+		mountLazy()
+		doc.addEventListener('scroll', function() {
+			throttle(function() {
+				mountLazy()
+				execLazy()
+			})
+		}, true)
+		doc.addEventListener('DOMContentLoaded', function() {
+			for(var x = 0, c = eventsPolyfill.length; x < c; x++) {
+				doc.addEventListener(eventsPolyfill[x], function(el) {
+					if (el.target.className === undefined) return
+					if (el.target.className.indexOf('has--lazyload') === -1) return
+					mountLazy()
+					throttle(function() {
+						execLazy()
+					})
+				}, true)
+			}
+		}, true);
 	}
-})();
+})(window, document);
