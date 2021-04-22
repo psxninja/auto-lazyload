@@ -47,29 +47,31 @@
 		for (var z = 0, y = elems.length; z < y; z++) {
 			var div = doc.createElement('div')
 			var html = elems[z].querySelector('noscript')
-			var getImgs = null
+			var getToLazy = null
 			if (html === null || html.length === 0) continue
 			html = html.textContent
 			if (regImg.test(html)) {
 				html = html.replace(regImg, function(str) {
 					return str.replace(regSrc, repImg)
 				});
+				div.innerHTML = html
+				getToLazy = div.getElementsByTagName('img')
 			}
 			if (regIframe.test(html)) {
 				html = html.replace(regIframe, function(str) {
 					return str.replace(regSrc, repIframe)
 				});
+				div.innerHTML = html
+				getToLazy = div.getElementsByTagName('iframe')
 			}
-			div.innerHTML = html
-			getImgs = div.getElementsByTagName('img')
-			for (var q = 0, t = getImgs.length; q < t; q++) {
-				getImgs[q].className += ' lazy-loading'
+			for (var q = 0, t = getToLazy.length; q < t; q++) {
+				getToLazy[q].className += ' lazy-loading'
 			}
 			elems[z].innerHTML = div.innerHTML
 			elems[z].className = elems[z].className.replace('has--lazyload', '')
 			html = undefined
 			div = undefined
-			getImgs = undefined
+			getToLazy = undefined
 		}
 		elems = undefined
 	}
