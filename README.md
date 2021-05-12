@@ -1,7 +1,7 @@
 # LazyLoad non-reactJS
 A lazyload for be use with websites.
 
-[Demo](../master/LICENSE)
+[Demo](https://psxninja.github.io/auto-lazyload/)
 
 
 ## Instalation
