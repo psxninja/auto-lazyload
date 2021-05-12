@@ -1,6 +1,9 @@
 # LazyLoad non-reactJS
 A lazyload for be use with websites.
 
+[Demo](../master/LICENSE)
+
+
 ## Instalation
 ```html
 <script defer="defer" src="./auto-lazyload-min.js"></script>
@@ -18,7 +21,7 @@ _After import/call files on page, its initialize automatically._
 
 → Images
 ```html
-<img data-src="IMAGE_URL" src="data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs=" class="lazy-loading">
+<img class="lazy-loading" data-src="IMAGE_URL" src="data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs=">
 ```
 
 → Backgroung images
@@ -34,25 +37,43 @@ _After import/call files on page, its initialize automatically._
 
 or
 
-<iframe class="lazy-loading" data-src="IFRAME_URL" src="data:text/plain;charset=UTF-8,Carregando..."></iframe>
+<iframe class="lazy-loading" data-src="IFRAME_URL" src="data:text/plain;charset=UTF-8,Loading..."></iframe>
 ```
 
 You can use the following classes on image tag `<img class="lazy-">` to custom style:
 
 ```css
-[class*="lazy-"] {
-    opacity: .1;
-	transition: opacity .2s ease-out;
+/* for image */
+iframe[class*="lazy-"] {
+	background: #c3c3c3;
 }
-.lazy-loading {
+[class*="lazy-"][src*="data:image/gif;"]  {
 	opacity: .1;
+	transition: none;
 }
-.lazy-loaded {
+[class*="lazy-"] {
+	opacity: .1;
+	transition: opacity .3s ease-out;
+}
+[class*="lazy-"].lazy-loaded {
 	opacity: 1;
 }
-.lazy-bg {
-    opacity: 1;
-}
+```
+
+
+If you do need to execute again after insert some image or iframe:
+```js
+/* use this */
+autoLazyload.mount()
+autoLazyload.run()
+
+/* or this to mount and execute after mount */
+
+autoLazyload.mount(1000) /* dalay in ms */
+
+/* also function run with dalay */
+
+autoLazyload.run(1000) /* dalay in ms */
 ```
 
 

@@ -1,5 +1,5 @@
 /*!
- * Auto Lazyload v2.0
+ * Auto Lazyload v3.0.0
  * https://psxninja.github.io
  *
  * Copyright psxninja
@@ -8,7 +8,7 @@
  *
  * Date: 2019-07-20T22:49Z
  */
-(function(win, doc){
+(function(){
 	'use strict';
 	var regImg = /<img.*?>/gi
 	,regIframe = /<iframe.*?>/gi
@@ -16,36 +16,60 @@
 	,repImg = 'data-src="$1" src="data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs="'
 	,repIframe = 'data-src="$1" src="data:text/plain;charset=UTF-8,Carregando..."'
 	,eventsPolyfill = [
-		'DOMNodeInserted',
 		'transitionend',
 		'animationend',
 		'webkitAnimationEnd',
 		'resize',
-		/* 'DOMAttrModified' */
+		'scroll',
 	]
-	,windowHeight = (window.innerHeight || doc.documentElement.clientHeight)
-	,windowWidth = (window.innerWidth || doc.documentElement.clientWidth)
+	,windowHeight = (window.innerHeight || document.documentumentElement.clientHeight)
+	,windowWidth = (window.innerWidth || document.documentumentElement.clientWidth)
 	,execLoad = null
 	,mountLoad = null
-	,onloadImg = function(img) {
-		img.className = img.className.replace('lazy-loading', 'lazy-loaded')
+	,onloadImg = function(img, dalay) {
+		setTimeout(function() {
+			img.className = img.className.replace('lazy-loading', 'lazy-loaded')
+		}, dalay || 0)
 		img.removeEventListener('onload', onloadImg)
 	}
 	,throttle = function(callback, limit) {
 		if (execLoad !== null) clearTimeout(execLoad)
-		execLoad = win.setTimeout(function() {
+		execLoad = window.setTimeout(function() {
 			callback()
 			execLoad = null
 		}, (limit || 550))
 	}
-	function mountLazy() {
-		var elems = doc.querySelectorAll('.has--lazyload')
+	window.autoLazyload = {}
+	window.autoLazyload.run = function(dalay) {
+		var lazy = document.querySelectorAll('.lazy-loading');
+		var observer = new IntersectionObserver(function(entries, observer) {
+			for (var z = 0, v = entries.length; z < v; z++) {
+				if (entries[z].isIntersecting === false) continue
+				if (entries[z].target.dataset.bg) {
+					entries[z].target.style.backgroundImage
+						= 'url(' + entries[z].target.dataset.bg + ')'
+					onloadImg(entries[z].target, dalay)
+				}
+				if (entries[z].target.dataset.src) {
+					entries[z].target.onload = onloadImg(entries[z].target, dalay)
+					entries[z].target.src = entries[z].target.dataset.src
+				}
+				observer.unobserve(entries[z].target)
+			}
+		})
+		for (var x = 0, c = lazy.length; x < c; x++) {
+			observer.observe(lazy[x]);
+		}
+		observer = lazy = undefined
+	}
+	window.autoLazyload.mount = function(dalay) {
+		var elems = document.querySelectorAll('.has--lazyload')
 		if (elems.length === 0 || mountLoad !== null) return
-		mountLoad = win.setTimeout(function() {
+		mountLoad = window.setTimeout(function() {
 			mountLoad = null
 		}, 550)
 		for (var z = 0, y = elems.length; z < y; z++) {
-			var div = doc.createElement('div')
+			var div = document.createElement('div')
 			var html = elems[z].querySelector('noscript')
 			var getToLazy = null
 			if (html === null || html.length === 0) continue
@@ -64,55 +88,23 @@
 				div.innerHTML = html
 				getToLazy = div.getElementsByTagName('iframe')
 			}
-			for (var q = 0, t = getToLazy.length; q < t; q++) {
+			for (var q = 0, t = getToLazy.length; q < t; q++) 
 				getToLazy[q].className += ' lazy-loading'
-			}
 			elems[z].innerHTML = div.innerHTML
 			elems[z].className = elems[z].className.replace('has--lazyload', '')
-			html = undefined
-			div = undefined
-			getToLazy = undefined
+			html = div = getToLazy = undefined
 		}
 		elems = undefined
+		if (dalay) autoLazyload.run(dalay)
 	}
 	if ('IntersectionObserver' in window) {
-		function execLazy(){
-			var lazy = doc.querySelectorAll('.lazy-loading');
-			var observer = new IntersectionObserver(function(entries, observer) {
-				for (var z = 0, v = entries.length; z < v; z++) {
-					if (entries[z].isIntersecting === false) continue
-					if (entries[z].target.dataset.bg) {
-						entries[z].target.style.backgroundImage
-							= 'url(' + entries[z].target.dataset.bg + ')'
-						onloadImg(entries[z].target)
-					}
-					if (entries[z].target.dataset.src) {
-						entries[z].target.onload = onloadImg(entries[z].target)
-						entries[z].target.src = entries[z].target.dataset.src
-					}
-					observer.unobserve(entries[z].target)
-				}
-			})
-			for (var x = 0, c = lazy.length; x < c; x++) {
-				observer.observe(lazy[x]);
-			}
-			lazy = undefined
-		}
-		mountLazy()
-		doc.addEventListener('DOMContentLoaded', function() {
-			execLazy()
-			doc.addEventListener('DOMNodeInserted', function(el) {
-				if (el.target.className === undefined) return
-				if (el.target.className.indexOf('has--lazyload') === -1) return
-				mountLazy()
-				throttle(function() {
-					execLazy()
-				})
-			}, true);
-		}, true);
+		autoLazyload.mount()
+		document.addEventListener('DOMContentLoaded', function() {
+			autoLazyload.run(1000)
+		}, true)
 	} else {
-		function execLazy() {
-			var lazy = doc.querySelectorAll('.lazy-loading');
+		window.autoLazyload.run = function(dalay) {
+			var lazy = document.querySelectorAll('.lazy-loading');
 			if (lazy.length === 0) return
 			for (var z = 0, v = lazy.length; z < v; z++) {
 				if (lazy[z].className.indexOf('lazy-loading') === -1) continue
@@ -124,37 +116,31 @@
 					rect.right <= windowWidth
 				) {
 					if (lazy[z].dataset.bg) {
-						lazy[z].style.backgroundImage
-							= 'url(' + lazy[z].dataset.bg + ')'
-						onloadImg(lazy[z])
+						lazy[z].style.backgroundImage = 'url(' + lazy[z].dataset.bg + ')'
+						onloadImg(lazy[z], dalay)
 					}
 					if (lazy[z].dataset.src) {
-						lazy[z].onload = onloadImg(lazy[z])
+						lazy[z].onload = onloadImg(lazy[z], dalay)
 						lazy[z].src = lazy[z].dataset.src
 					}
 				}
 				rect = undefined
 			}
-			lazy = null
+			lazy = undefined
 		}
-		mountLazy()
-		doc.addEventListener('scroll', function() {
-			throttle(function() {
-				mountLazy()
-				execLazy()
-			})
-		}, true)
-		doc.addEventListener('DOMContentLoaded', function() {
+		autoLazyload.mount()
+		document.addEventListener('DOMContentLoaded', function() {
+			autoLazyload.run(1000)
 			for(var x = 0, c = eventsPolyfill.length; x < c; x++) {
-				doc.addEventListener(eventsPolyfill[x], function(el) {
+				document.addEventListener(eventsPolyfill[x], function(el) {
 					if (el.target.className === undefined) return
 					if (el.target.className.indexOf('has--lazyload') === -1) return
-					mountLazy()
+					autoLazyload.mount()
 					throttle(function() {
-						execLazy()
+						autoLazyload.run()
 					})
 				}, true)
 			}
-		}, true);
+		}, true)
 	}
-})(window, document);
+})();
