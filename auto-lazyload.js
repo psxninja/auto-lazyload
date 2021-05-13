@@ -1,5 +1,5 @@
 /*!
- * Auto Lazyload v3.0.0
+ * Auto Lazyload v3.1.0
  * https://psxninja.github.io
  *
  * Copyright psxninja
@@ -8,7 +8,7 @@
  *
  * Date: 2019-07-20T22:49Z
  */
-(function(){
+(function(defaultDalay){
 	'use strict';
 	var regImg = /<img.*?>/gi
 	,regIframe = /<iframe.*?>/gi
@@ -100,7 +100,7 @@
 	if ('IntersectionObserver' in window) {
 		autoLazyload.mount()
 		document.addEventListener('DOMContentLoaded', function() {
-			autoLazyload.run(1000)
+			autoLazyload.run(defaultDalay)
 		}, true)
 	} else {
 		window.autoLazyload.run = function(dalay) {
@@ -130,7 +130,7 @@
 		}
 		autoLazyload.mount()
 		document.addEventListener('DOMContentLoaded', function() {
-			autoLazyload.run(1000)
+			autoLazyload.run(defaultDalay)
 			for(var x = 0, c = eventsPolyfill.length; x < c; x++) {
 				document.addEventListener(eventsPolyfill[x], function(el) {
 					if (el.target.className === undefined) return
@@ -143,4 +143,4 @@
 			}
 		}, true)
 	}
-})();
+})(0);

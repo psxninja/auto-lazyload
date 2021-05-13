@@ -43,19 +43,18 @@ or
 You can use the following classes on image tag `<img class="lazy-">` to custom style:
 
 ```css
-/* for image */
 iframe[class*="lazy-"] {
-	background: #c3c3c3;
+	background: #ebebeb;
 }
-[class*="lazy-"][src*="data:image/gif;"]  {
+img[class*="lazy-"][src*="data:image/gif;"] {
 	opacity: .1;
 	transition: none;
 }
-[class*="lazy-"] {
+img[class*="lazy-"] {
 	opacity: .1;
 	transition: opacity .3s ease-out;
 }
-[class*="lazy-"].lazy-loaded {
+img[class*="lazy-"].lazy-loaded {
 	opacity: 1;
 }
 ```
@@ -63,7 +62,6 @@ iframe[class*="lazy-"] {
 
 If you do need to execute again after insert some image or iframe:
 ```js
-/* use this */
 autoLazyload.mount()
 autoLazyload.run()
 
@@ -74,6 +72,11 @@ autoLazyload.mount(1000) /* dalay in ms */
 /* also function run with dalay */
 
 autoLazyload.run(1000) /* dalay in ms */
+```
+
+You can change default delay, look at the end of self executing function
+```js
+...(0); /* dalay in ms */
 ```
 
 
