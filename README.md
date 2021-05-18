@@ -21,7 +21,7 @@ _After import/call files on page, its initialize automatically._
 
 → Images
 ```html
-<img class="lazy-loading" data-src="IMAGE_URL" src="data:image/gif;base64,R0lGODdhAQABAPAAAMPDwwAAACwAAAAAAQABAAACAkQBADs=">
+<img class="lazy-loading" data-src="IMAGE_URL" src="data:image/gif;base64,R0lGODlhAQABAIAAAOvr6wAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==">
 ```
 
 → Backgroung images
