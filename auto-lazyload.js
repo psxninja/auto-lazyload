@@ -72,7 +72,7 @@
 				var div = document.createElement('div')
 				var html = elems[z].querySelector('noscript')
 				var getToLazy = null
-				if (html === null || html.length === 0) continue
+				if (html === null || html.textContent.length === 0) continue
 				html = html.textContent
 				if (regImg.test(html)) {
 					html = html.replace(regImg, function(str) {
